@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model Teacher {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  notes     String?
+  mappings  BatchSubjectTeacher[]
+  entries   TimetableEntry[]
+  holidays  TeacherHolidayOverride[]
+}
+
+model Subject {
+  id        Int       @id @default(autoincrement())
+  name      String
+  type      String    // "language" | "core"
+  mappings  BatchSubjectTeacher[]
+  entries   TimetableEntry[]
+}
+
+model Batch {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  board     String    // "STATE" | "CBSE" | "ICSE"
+  grade     Int
+  slotStart String    // "14:00" or "16:00"
+  slotEnd   String    // "16:00" or "18:00"
+  mappings  BatchSubjectTeacher[]
+  entries   TimetableEntry[]
+}
+
+model BatchSubjectTeacher {
+  id        Int     @id @default(autoincrement())
+  batchId   Int
+  subjectId Int
+  teacherId Int
+
+  batch     Batch   @relation(fields: [batchId], references: [id])
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  teacher   Teacher @relation(fields: [teacherId], references: [id])
+
+  @@unique([batchId, subjectId])
+}
+
+model TimetableFortnight {
+  id        Int       @id @default(autoincrement())
+  startDate DateTime
+  endDate   DateTime
+  weeks     TimetableWeek[]
+}
+
+model TimetableWeek {
+  id                  Int       @id @default(autoincrement())
+  weekStartDate       DateTime
+  weekEndDate         DateTime
+  fortnightId         Int?
+  positionInFortnight Int       // 1 or 2
+  
+  fortnight           TimetableFortnight? @relation(fields: [fortnightId], references: [id])
+  entries             TimetableEntry[]
+}
+
+model TimetableEntry {
+  id          Int      @id @default(autoincrement())
+  weekId      Int
+  batchId     Int
+  day         String   // "Mon", "Tue", etc.
+  date        DateTime
+  subjectId   Int?
+  teacherId   Int?
+  unresolved  Boolean  @default(false)
+
+  week        TimetableWeek @relation(fields: [weekId], references: [id])
+  batch       Batch         @relation(fields: [batchId], references: [id])
+  subject     Subject?      @relation(fields: [subjectId], references: [id])
+  teacher     Teacher?      @relation(fields: [teacherId], references: [id])
+}
+
+model TeacherHolidayOverride {
+  id          Int      @id @default(autoincrement())
+  teacherId   Int
+  date        DateTime
+  reason      String?
+
+  teacher     Teacher  @relation(fields: [teacherId], references: [id])
+}
