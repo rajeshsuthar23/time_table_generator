@@ -1,0 +1,22 @@
+{
+  "name": "gradwise-timetable-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "prisma generate --schema=backend/prisma/schema.prisma"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "cors": "^2.8.5",
+    "@prisma/client": "^7.8.0",
+    "prisma": "^7.8.0",
+    "date-fns": "^4.4.0",
+    "@prisma/config": "^7.8.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/node": "^22.0.0"
+  }
+}
